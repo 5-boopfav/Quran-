@@ -129,11 +129,13 @@ class PrayerService {
     final cityName = prefs.getString(_cityNameKey) ?? 'الرياض';
     final lat = prefs.getDouble(_latKey) ?? 24.7136;
     final lng = prefs.getDouble(_lngKey) ?? 46.6753;
-    final methodIndex = prefs.getInt(_methodKey) ?? CalculationMethod.umm_al_qura.index;
+    final methodIndex =
+        prefs.getInt(_methodKey) ?? CalculationMethod.umm_al_qura.index;
 
-    final method = (methodIndex >= 0 && methodIndex < CalculationMethod.values.length)
-        ? CalculationMethod.values[methodIndex]
-        : CalculationMethod.umm_al_qura;
+    final method =
+        (methodIndex >= 0 && methodIndex < CalculationMethod.values.length)
+            ? CalculationMethod.values[methodIndex]
+            : CalculationMethod.umm_al_qura;
 
     final coordinates = Coordinates(lat, lng);
     final params = method.getParameters();
@@ -143,8 +145,7 @@ class PrayerService {
     final dateComponents = DateComponents.from(targetDate);
     final prayerTimes = PrayerTimes(coordinates, dateComponents, params);
 
-    final now = DateTime.now();
-    final nextPrayer = prayerTimes.nextPrayer(time: now);
+    final nextPrayer = prayerTimes.nextPrayer();
     final nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer);
 
     return PrayerTimesBundle(
