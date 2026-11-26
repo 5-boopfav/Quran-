@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/theme_controller.dart';
+import '../../core/theme/theme_models.dart';
 import '../../core/widgets/glass_components.dart';
 import '../../data/prayer/prayer_service.dart';
 
@@ -39,7 +40,9 @@ class _PrayerScreenState extends State<PrayerScreen> {
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('يمكنك اختيار مدينتك يدوياً من القائمة أدناه دون الحاجة للموقع.'),
+          content: Text(
+            'يمكنك اختيار مدينتك يدوياً من القائمة أدناه دون الحاجة للموقع.',
+          ),
         ),
       );
     }
@@ -92,7 +95,11 @@ class _PrayerScreenState extends State<PrayerScreen> {
                           ),
                           TextButton.icon(
                             onPressed: _useCurrentLocation,
-                            icon: Icon(Icons.my_location, size: 18, color: palette.primaryColor),
+                            icon: Icon(
+                              Icons.my_location,
+                              size: 18,
+                              color: palette.primaryColor,
+                            ),
                             label: Text(
                               'تحديد موقعي',
                               style: TextStyle(color: palette.primaryColor),
@@ -103,7 +110,10 @@ class _PrayerScreenState extends State<PrayerScreen> {
                       const SizedBox(height: 6),
                       Text(
                         'يُستخدم الموقع الجغرافي فقط لحساب مواقيت الصلاة بدقة، ويمكنك اختيار المدينة يدوياً في أي وقت.',
-                        style: TextStyle(fontSize: 12, color: palette.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: palette.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Wrap(
