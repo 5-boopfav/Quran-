@@ -180,8 +180,8 @@ class _AdhkarScreenState extends State<AdhkarScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                               decoration: BoxDecoration(
                                 color: remaining == 0
-                                    ? Colors.green.withOpacity(0.18)
-                                    : palette.primaryColor.withOpacity(0.15),
+                                    ? Colors.green.withValues(alpha: 0.18)
+                                    : palette.primaryColor.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
