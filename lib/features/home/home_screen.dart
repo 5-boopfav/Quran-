@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor: itemPalette.primaryColor,
-                    child: Icon(
+                    child: const Icon(
                       Icons.palette_outlined,
                       color: Colors.white,
                       size: 18,
@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: palette.accentGold.withOpacity(0.18),
+                      color: palette.accentGold.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(Icons.auto_stories, color: palette.accentGold),
