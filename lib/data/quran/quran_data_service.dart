@@ -33,8 +33,7 @@ class QuranPageModel {
 class QuranDataService {
   static const String _cachePrefix = 'quran_page_v1_';
 
-  /// يجلب صفحة المصحف من مصدر موثوق (AlQuran Cloud - نص إملائي/عثماني رسمي)
-  /// ويحفظها محلياً لتسريع القراءة اللاحقة دون أي تعديل يدوي للنص القرآني.
+  /// يجلب صفحة المصحف من مصدر موثوق ويحفظها محلياً دون أي تعديل يدوي للنص القرآني.
   Future<QuranPageModel> fetchPage(int pageNumber) async {
     final safePage = pageNumber.clamp(1, 604);
     final prefs = await SharedPreferences.getInstance();
@@ -47,24 +46,39 @@ class QuranDataService {
       );
     }
 
-    final uri = Uri.parse('https://api.alquran.cloud/v1/page/$safePage/quran-uthmani');
+    final uri =
+        Uri.parse('https://api.alquran.cloud/v1/page/$safePage/quran-uthmani');
     final response = await http.get(uri).timeout(const Duration(seconds: 12));
 
     if (response.statusCode != 200) {
       throw Exception('تعذر جلب صفحة المصحف رقم $safePage');
     }
 
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final data = decoded['data'] as Map<String, dynamic>;
-    final ayahs = (data['ayahs'] as List<dynamic>).cast>();
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception('استجابة غير متوقعة من مصدر القرآن');
+    }
 
-    if (ayahs.isEmpty) {
+    final data = decoded['data'];
+    if (data is! Map<String, dynamic>) {
+      throw Exception('بيانات الصفحة غير مكتملة');
+    }
+
+    final rawAyahs = data['ayahs'];
+    if (rawAyahs is! List || rawAyahs.isEmpty) {
       throw Exception('لا توجد آيات في الصفحة رقم $safePage');
     }
 
+    final ayahs = rawAyahs.whereType>().toList();
+    if (ayahs.isEmpty) {
+      throw Exception('تعذر قراءة آيات الصفحة رقم $safePage');
+    }
+
     final firstAyah = ayahs.first;
-    final surahInfo = firstAyah['surah'] as Map<String, dynamic>;
-    final surahName = (surahInfo['name'] as String?) ?? 'القرآن الكريم';
+    final surahRaw = firstAyah['surah'];
+    final surahName = surahRaw is Map<String, dynamic>
+        ? ((surahRaw['name'] as String?) ?? 'القرآن الكريم')
+        : 'القرآن الكريم';
     final juzNumber = (firstAyah['juz'] as int?) ?? 1;
 
     final buffer = StringBuffer();
