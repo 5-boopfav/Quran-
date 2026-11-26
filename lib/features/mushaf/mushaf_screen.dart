@@ -175,7 +175,7 @@ class _MushafScreenState extends State<MushafScreen> {
                       border: Border.all(color: mPalette.borderGold, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 14,
                           offset: const Offset(0, 6),
                         ),
@@ -203,7 +203,7 @@ class _MushafScreenState extends State<MushafScreen> {
                             ),
                           ],
                         ),
-                        Divider(color: mPalette.borderGold.withOpacity(0.5)),
+                        Divider(color: mPalette.borderGold.withValues(alpha: 0.5)),
                         Expanded(
                           child: pageData != null
                               ? SingleChildScrollView(
