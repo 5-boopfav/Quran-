@@ -15,25 +15,19 @@ class QuranPageModel {
     required this.quranText,
   });
 
-  Map<String, dynamic> toJson() => {
-        'pageNumber': pageNumber,
-        'surahHeader': surahHeader,
-        'juzNumber': juzNumber,
-        'quranText': quranText,
-      };
-
-  factory QuranPageModel.fromJson(Map<String, dynamic> json) => QuranPageModel(
-        pageNumber: json['pageNumber'] as int,
-        surahHeader: json['surahHeader'] as String,
-        juzNumber: json['juzNumber'] as int,
-        quranText: json['quranText'] as String,
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      'pageNumber': pageNumber,
+      'surahHeader': surahHeader,
+      'juzNumber': juzNumber,
+      'quranText': quranText,
+    };
+  }
 }
 
 class QuranDataService {
   static const String _cachePrefix = 'quran_page_v1_';
 
-  /// يجلب صفحة المصحف من مصدر موثوق ويحفظها محلياً دون أي تعديل يدوي للنص القرآني.
   Future<QuranPageModel> fetchPage(int pageNumber) async {
     final safePage = pageNumber.clamp(1, 604);
     final prefs = await SharedPreferences.getInstance();
@@ -41,13 +35,13 @@ class QuranDataService {
 
     final cachedRaw = prefs.getString(cacheKey);
     if (cachedRaw != null) {
-      final decodedCache = jsonDecode(cachedRaw);
-      if (decodedCache is Map) {
+      final cachedObj = jsonDecode(cachedRaw);
+      if (cachedObj is Map) {
         return QuranPageModel(
-          pageNumber: (decodedCache['pageNumber'] as int?) ?? safePage,
-          surahHeader: (decodedCache['surahHeader'] as String?) ?? 'القرآن الكريم',
-          juzNumber: (decodedCache['juzNumber'] as int?) ?? 1,
-          quranText: (decodedCache['quranText'] as String?) ?? '',
+          pageNumber: (cachedObj['pageNumber'] as int?) ?? safePage,
+          surahHeader: (cachedObj['surahHeader'] as String?) ?? 'القرآن الكريم',
+          juzNumber: (cachedObj['juzNumber'] as int?) ?? 1,
+          quranText: (cachedObj['quranText'] as String?) ?? '',
         );
       }
     }
