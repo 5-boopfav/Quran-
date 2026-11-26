@@ -27,20 +27,6 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Ensure valid Android V2 project structure
-        run: |
-          if [ ! -f "android/app/build.gradle" ] && [ ! -f "android/app/build.gradle.kts" ]; then
-            mkdir -p /tmp/android_backup
-            if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
-              cp android/app/src/main/AndroidManifest.xml /tmp/android_backup/AndroidManifest.xml
-            fi
-            rm -rf android
-            flutter create . --platforms=android --org com.bahmad.quran --project-name quran_app
-            if [ -f "/tmp/android_backup/AndroidManifest.xml" ]; then
-              cp /tmp/android_backup/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
-            fi
-          fi
-
       - name: Install dependencies
         run: flutter pub get
 
@@ -48,12 +34,14 @@ jobs:
         run: flutter analyze || true
 
       - name: Build release APK
+        run: flutter build apk --release --verbose 2>&1 | grep -iE "embedding|manifest|gradle|error|exception|failed" -C 3 || true
+
+      - name: Build release APK (standard)
         run: flutter build apk --release
 
       - name: Upload APK artifact
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: ignore
