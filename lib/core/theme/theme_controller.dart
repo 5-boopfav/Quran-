@@ -3,21 +3,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'theme_models.dart';
 
 class ThemeController extends ChangeNotifier {
-  static const String _appThemeKey = 'selected_app_theme_v1';
-  static const String _mushafThemeKey = 'selected_mushaf_theme_v1';
-  static const String _pageTurnSoundKey = 'mushaf_page_turn_sound_v1';
-  static const String _khatmahPageKey = 'khatmah_current_page_v1';
-  static const String _tasbeehCountKey = 'tasbeeh_total_count_v1';
+  static const String _appThemeKey = 'app_theme_style_v1';
+  static const String _mushafThemeKey = 'mushaf_page_theme_v1';
+  static const String _khatmahPageKey = 'khatmah_page_v1';
+  static const String _tasbeehCountKey = 'tasbeeh_count_v1';
 
   AppThemeStyle _appThemeStyle = AppThemeStyle.skyLight;
   MushafPageThemeStyle _mushafThemeStyle = MushafPageThemeStyle.classicCream;
-  bool _pageTurnSoundEnabled = true;
   int _khatmahPage = 1;
   int _tasbeehCount = 0;
 
   AppThemeStyle get appThemeStyle => _appThemeStyle;
   MushafPageThemeStyle get mushafThemeStyle => _mushafThemeStyle;
-  bool get pageTurnSoundEnabled => _pageTurnSoundEnabled;
   int get khatmahPage => _khatmahPage;
   int get tasbeehCount => _tasbeehCount;
 
@@ -28,20 +25,31 @@ class ThemeController extends ChangeNotifier {
   Future<void> loadSavedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final appIndex = prefs.getInt(_appThemeKey);
-    if (appIndex != null && appIndex >= 0 && appIndex < AppThemeStyle.values.length) {
-      _appThemeStyle = AppThemeStyle.values[appIndex];
+    final savedAppTheme = prefs.getString(_appThemeKey);
+    if (savedAppTheme != null) {
+      for (final item in AppThemeStyle.values) {
+        if (item.name == savedAppTheme) {
+          _appThemeStyle = item;
+          break;
+        }
+      }
     }
 
-    final mushafIndex = prefs.getInt(_mushafThemeKey);
-    if (mushafIndex != null &&
-        mushafIndex >= 0 &&
-        mushafIndex < MushafPageThemeStyle.values.length) {
-      _mushafThemeStyle = MushafPageThemeStyle.values[mushafIndex];
+    final savedMushafTheme = prefs.getString(_mushafThemeKey);
+    if (savedMushafTheme != null) {
+      for (final item in MushafPageThemeStyle.values) {
+        if (item.name == savedMushafTheme) {
+          _mushafThemeStyle = item;
+          break;
+        }
+      }
     }
 
-    _pageTurnSoundEnabled = prefs.getBool(_pageTurnSoundKey) ?? true;
-    _khatmahPage = (prefs.getInt(_khatmahPageKey) ?? 1).clamp(1, 604);
+    final savedPage = prefs.getInt(_khatmahPageKey);
+    if (savedPage != null) {
+      _khatmahPage = savedPage.clamp(1, 604);
+    }
+
     _tasbeehCount = prefs.getInt(_tasbeehCountKey) ?? 0;
     notifyListeners();
   }
@@ -50,21 +58,14 @@ class ThemeController extends ChangeNotifier {
     _appThemeStyle = style;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_appThemeKey, style.index);
+    await prefs.setString(_appThemeKey, style.name);
   }
 
   Future<void> setMushafTheme(MushafPageThemeStyle style) async {
     _mushafThemeStyle = style;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_mushafThemeKey, style.index);
-  }
-
-  Future<void> setPageTurnSound(bool enabled) async {
-    _pageTurnSoundEnabled = enabled;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_pageTurnSoundKey, enabled);
+    await prefs.setString(_mushafThemeKey, style.name);
   }
 
   Future<void> setKhatmahPage(int page) async {
@@ -73,11 +74,11 @@ class ThemeController extends ChangeNotifier {
     _khatmahPage = clamped;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_khatmahPageKey, clamped);
+    await prefs.setInt(_khatmahPageKey, _khatmahPage);
   }
 
   Future<void> incrementTasbeeh() async {
-    _tasbeehCount++;
+    _tasbeehCount += 1;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_tasbeehCountKey, _tasbeehCount);
@@ -87,6 +88,6 @@ class ThemeController extends ChangeNotifier {
     _tasbeehCount = 0;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_tasbeehCountKey, 0);
+    await prefs.setInt(_tasbeehCountKey, _tasbeehCount);
   }
 }
