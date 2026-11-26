@@ -41,9 +41,15 @@ class QuranDataService {
 
     final cachedRaw = prefs.getString(cacheKey);
     if (cachedRaw != null) {
-      return QuranPageModel.fromJson(
-        jsonDecode(cachedRaw) as Map<String, dynamic>,
-      );
+      final decodedCache = jsonDecode(cachedRaw);
+      if (decodedCache is Map) {
+        return QuranPageModel(
+          pageNumber: (decodedCache['pageNumber'] as int?) ?? safePage,
+          surahHeader: (decodedCache['surahHeader'] as String?) ?? 'القرآن الكريم',
+          juzNumber: (decodedCache['juzNumber'] as int?) ?? 1,
+          quranText: (decodedCache['quranText'] as String?) ?? '',
+        );
+      }
     }
 
     final uri =
@@ -55,12 +61,12 @@ class QuranDataService {
     }
 
     final decoded = jsonDecode(response.body);
-    if (decoded is! Map<String, dynamic>) {
+    if (decoded is! Map) {
       throw Exception('استجابة غير متوقعة من مصدر القرآن');
     }
 
     final data = decoded['data'];
-    if (data is! Map<String, dynamic>) {
+    if (data is! Map) {
       throw Exception('بيانات الصفحة غير مكتملة');
     }
 
@@ -69,26 +75,27 @@ class QuranDataService {
       throw Exception('لا توجد آيات في الصفحة رقم $safePage');
     }
 
-    final ayahs = >[];
+    final validAyahs = [];
     for (final item in rawAyahs) {
-      if (item is Map<String, dynamic>) {
-        ayahs.add(item);
+      if (item is Map) {
+        validAyahs.add(item);
       }
     }
 
-    if (ayahs.isEmpty) {
+    if (validAyahs.isEmpty) {
       throw Exception('تعذر قراءة آيات الصفحة رقم $safePage');
     }
 
-    final firstAyah = ayahs.first;
+    final firstAyah = validAyahs.first as Map;
     final surahRaw = firstAyah['surah'];
-    final surahName = surahRaw is Map<String, dynamic>
+    final surahName = surahRaw is Map
         ? ((surahRaw['name'] as String?) ?? 'القرآن الكريم')
         : 'القرآن الكريم';
     final juzNumber = (firstAyah['juz'] as int?) ?? 1;
 
     final buffer = StringBuffer();
-    for (final ayah in ayahs) {
+    for (final item in validAyahs) {
+      final ayah = item as Map;
       final text = (ayah['text'] as String?) ?? '';
       final numberInSurah = ayah['numberInSurah'];
       buffer.write('$text ﴿$numberInSurah﴾ ');
