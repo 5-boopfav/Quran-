@@ -68,7 +68,9 @@ class GlassSurfaceCard extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(palette.isDark ? 0.25 : 0.05),
+                    color: Colors.black.withValues(
+                      alpha: palette.isDark ? 0.25 : 0.05,
+                    ),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
