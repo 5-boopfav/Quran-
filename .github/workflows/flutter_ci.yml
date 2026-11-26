@@ -33,10 +33,15 @@ jobs:
       - name: Run static analysis
         run: flutter analyze || true
 
-      - name: Build release APK
-        run: flutter build apk --release --verbose 2>&1 | grep -iE "embedding|manifest|gradle|error|exception|failed" -C 3 || true
+      - name: Inspect Android files
+        run: |
+          find android -maxdepth 5 -not -path '*/.*'
+          echo "--- build.gradle / build.gradle.kts ---"
+          cat android/app/build.gradle 2>/dev/null || cat android/app/build.gradle.kts 2>/dev/null || echo "NO BUILD GRADLE"
+          echo "--- settings.gradle / settings.gradle.kts ---"
+          cat android/settings.gradle 2>/dev/null || cat android/settings.gradle.kts 2>/dev/null || echo "NO SETTINGS GRADLE"
 
-      - name: Build release APK (standard)
+      - name: Build release APK
         run: flutter build apk --release
 
       - name: Upload APK artifact
