@@ -27,26 +27,31 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Rebuild clean Android V2 project
+        run: |
+          mkdir -p /tmp/quran_android_backup
+          if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
+            cp android/app/src/main/AndroidManifest.xml /tmp/quran_android_backup/AndroidManifest.xml
+          fi
+          rm -rf android
+          flutter create . --platforms=android --org com.bahmad.quran --project-name quran_app
+          if [ -f "/tmp/quran_android_backup/AndroidManifest.xml" ]; then
+            cp /tmp/quran_android_backup/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          fi
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Run static analysis
         run: flutter analyze || true
 
-      - name: Inspect Android files
-        run: |
-          find android -maxdepth 5 -not -path '*/.*'
-          echo "--- build.gradle / build.gradle.kts ---"
-          cat android/app/build.gradle 2>/dev/null || cat android/app/build.gradle.kts 2>/dev/null || echo "NO BUILD GRADLE"
-          echo "--- settings.gradle / settings.gradle.kts ---"
-          cat android/settings.gradle 2>/dev/null || cat android/settings.gradle.kts 2>/dev/null || echo "NO SETTINGS GRADLE"
-
       - name: Build release APK
         run: flutter build apk --release
 
       - name: Upload APK artifact
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: ignore
