@@ -69,7 +69,13 @@ class QuranDataService {
       throw Exception('لا توجد آيات في الصفحة رقم $safePage');
     }
 
-    final ayahs = rawAyahs.whereType>().toList();
+    final ayahs = >[];
+    for (final item in rawAyahs) {
+      if (item is Map<String, dynamic>) {
+        ayahs.add(item);
+      }
+    }
+
     if (ayahs.isEmpty) {
       throw Exception('تعذر قراءة آيات الصفحة رقم $safePage');
     }
